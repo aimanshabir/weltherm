@@ -1,0 +1,108 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  ADMIN
+  EDITOR
+}
+
+enum PostStatus {
+  PENDING
+  PUBLISHED
+  REJECTED
+}
+
+model User {
+  id           String     @id @default(cuid())
+  email        String     @unique
+  name         String
+  passwordHash String
+  role         Role       @default(EDITOR)
+  createdAt    DateTime   @default(now())
+  sessions     Session[]
+  posts        Post[]
+}
+
+model Session {
+  id        String   @id @default(cuid())
+  token     String   @unique
+  userId    String
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  expiresAt DateTime
+  createdAt DateTime @default(now())
+}
+
+model Category {
+  id          String    @id @default(cuid())
+  name        String
+  slug        String    @unique
+  description String?
+  imageUrl    String?
+  group       String    @default("others") // kitchen | heating | cooling | floor-heating | others
+  sortOrder   Int       @default(0)
+  isActive    Boolean   @default(true)
+  products    Product[]
+}
+
+model Product {
+  id               String     @id @default(cuid())
+  name             String
+  slug             String     @unique
+  sku              String?
+  shortDescription String?
+  description      String?
+  images           String     @default("[]") // JSON array of local paths or URLs
+  featured         Boolean    @default(false)
+  isActive         Boolean    @default(true)
+  warranty         String?
+  amazonUrl        String?
+  flipkartUrl      String?
+  categoryId       String
+  category         Category   @relation(fields: [categoryId], references: [id], onDelete: Cascade)
+  createdAt        DateTime   @default(now())
+  updatedAt        DateTime   @updatedAt
+
+  @@index([categoryId])
+}
+
+model Post {
+  id          String     @id @default(cuid())
+  title       String
+  slug        String     @unique
+  excerpt     String?
+  content     String // Markdown
+  coverImage  String?
+  status      PostStatus @default(PENDING)
+  tags        String     @default("[]") // JSON array
+  authorName  String
+  authorEmail String?
+  authorId    String?
+  author      User?      @relation(fields: [authorId], references: [id], onDelete: SetNull)
+  createdAt   DateTime   @default(now())
+  publishedAt DateTime?
+
+  @@index([status])
+}
+
+model Message {
+  id        String   @id @default(cuid())
+  name      String
+  email     String
+  phone     String?
+  subject   String?
+  message   String
+  isRead    Boolean  @default(false)
+  createdAt DateTime @default(now())
+}
+
+model Subscriber {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  createdAt DateTime @default(now())
+}

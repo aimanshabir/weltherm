@@ -1,0 +1,119 @@
+@import "tailwindcss";
+
+@theme {
+  --color-brand-50: #fef2f3;
+  --color-brand-100: #fde3e5;
+  --color-brand-200: #fbced1;
+  --color-brand-300: #f7a9af;
+  --color-brand-400: #f17a83;
+  --color-brand-500: #e64d58;
+  --color-brand-600: #d92634;
+  --color-brand-700: #bd1c2a;
+  --color-brand-800: #9d1b28;
+  --color-brand-900: #831c27;
+  --color-brand-950: #470911;
+
+  --color-ink-50: #f6f7f8;
+  --color-ink-100: #eceef0;
+  --color-ink-200: #d5d9de;
+  --color-ink-300: #b0b8c1;
+  --color-ink-400: #8591a0;
+  --color-ink-500: #677380;
+  --color-ink-600: #515b67;
+  --color-ink-700: #434a54;
+  --color-ink-800: #3a4048;
+  --color-ink-900: #191c1f;
+  --color-ink-950: #0d0f11;
+
+  --color-heat-400: #ffb84d;
+  --color-heat-500: #ff9f1c;
+  --color-heat-600: #f5870a;
+
+  --font-sans: var(--font-jakarta), ui-sans-serif, system-ui, sans-serif;
+
+  --animate-fade-up: fade-up 0.7s cubic-bezier(0.16, 1, 0.3, 1) both;
+  --animate-fade-in: fade-in 0.9s ease both;
+
+  @keyframes fade-up {
+    from {
+      opacity: 0;
+      transform: translateY(24px);
+    }
+    to {
+      opacity: 1;
+      transform: translateY(0);
+    }
+  }
+  @keyframes fade-in {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+}
+
+body {
+  background: #ffffff;
+  color: var(--color-ink-900);
+}
+
+::selection {
+  background: var(--color-brand-600);
+  color: white;
+}
+
+/* Markdown content styling (blog posts & product descriptions) */
+.prose-weltherm {
+  line-height: 1.75;
+  color: var(--color-ink-700);
+}
+.prose-weltherm > * + * {
+  margin-top: 1em;
+}
+.prose-weltherm h1,
+.prose-weltherm h2,
+.prose-weltherm h3 {
+  color: var(--color-ink-900);
+  font-weight: 700;
+  line-height: 1.25;
+}
+.prose-weltherm h2 {
+  font-size: 1.5rem;
+  margin-top: 2rem;
+}
+.prose-weltherm h3 {
+  font-size: 1.2rem;
+  margin-top: 1.5rem;
+}
+.prose-weltherm ul,
+.prose-weltherm ol {
+  padding-left: 1.4rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+.prose-weltherm ul {
+  list-style: disc;
+}
+.prose-weltherm ol {
+  list-style: decimal;
+}
+.prose-weltherm strong {
+  color: var(--color-ink-900);
+}
+.prose-weltherm a {
+  color: var(--color-brand-600);
+  text-decoration: underline;
+  text-underline-offset: 3px;
+}
+.prose-weltherm img {
+  border-radius: 1rem;
+}
+.prose-weltherm blockquote {
+  border-left: 3px solid var(--color-brand-500);
+  padding-left: 1rem;
+  font-style: italic;
+  color: var(--color-ink-500);
+}
