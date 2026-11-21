@@ -18,7 +18,7 @@ export async function uploadToCloudinary(buffer: Buffer, folder: string): Promis
   if (!cloudinaryConfigured()) return null;
   try {
     const timestamp = Math.floor(Date.now() / 1000);
-    const params: Record<string, string> = { folder, timestamp };
+    const params: Record<string, string> = { folder, timestamp: String(timestamp) };
     const toSign =
       Object.keys(params)
         .sort()
