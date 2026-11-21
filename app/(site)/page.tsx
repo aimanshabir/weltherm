@@ -1,5 +1,6 @@
 import Link from "next/link";
 import Image from "next/image";
+import SmartImage from "@/components/smart-image";
 import { getCategories, getFeaturedProducts, getPublishedPosts } from "@/lib/queries";
 import { CATEGORY_GROUPS, SITE, STATS } from "@/lib/site";
 import { parseJsonArray, formatDate } from "@/lib/utils";
@@ -150,7 +151,7 @@ export default async function HomePage() {
                 >
                   <div className="relative aspect-[4/3] bg-ink-50 p-5">
                     {cover ? (
-                      <Image
+                      <SmartImage
                         src={cover}
                         alt={c.name}
                         fill
@@ -158,7 +159,7 @@ export default async function HomePage() {
                         className="object-contain transition duration-500 group-hover:scale-105"
                       />
                     ) : (
-                      <Image src="/uploads/brand/logo.png" alt={c.name} fill sizes="25vw" className="object-contain p-6" />
+                      <SmartImage src="/uploads/brand/logo.png" alt={c.name} fill sizes="25vw" className="object-contain p-6" />
                     )}
                   </div>
                   <div className="flex items-center justify-between gap-2 p-4">
@@ -299,7 +300,7 @@ export default async function HomePage() {
               >
                 <div className="relative aspect-[16/9] bg-ink-50">
                   {post.coverImage && (
-                    <Image src={post.coverImage} alt={post.title} fill sizes="33vw" className="object-cover" />
+                    <SmartImage src={post.coverImage} alt={post.title} fill sizes="33vw" className="object-cover" />
                   )}
                 </div>
                 <div className="flex flex-1 flex-col p-5">

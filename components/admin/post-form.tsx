@@ -91,6 +91,19 @@ export default function PostForm({ post }: { post?: PostData }) {
               <input id="coverImage" name="coverImage" type="url" defaultValue={post?.coverImage ?? ""} placeholder="https://…" className={inputCls} />
             </div>
             <div>
+              <label htmlFor="coverFile" className={labelCls}>
+                Or upload a cover image
+              </label>
+              <input
+                id="coverFile"
+                name="coverFile"
+                type="file"
+                accept="image/*"
+                className="w-full rounded-xl border border-ink-200 bg-white px-3 py-2 text-xs file:mr-3 file:rounded-lg file:border-0 file:bg-brand-50 file:px-3 file:py-1.5 file:text-xs file:font-bold file:text-brand-700"
+              />
+              <p className="mt-1 text-xs text-ink-400">Optional — overrides the URL above when used.</p>
+            </div>
+            <div>
               <label htmlFor="tags" className={labelCls}>Tags</label>
               <input id="tags" name="tags" defaultValue={post?.tags.join(", ")} placeholder="Heating, Winter" className={inputCls} />
               <p className="mt-1 text-xs text-ink-400">Comma separated</p>

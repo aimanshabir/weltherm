@@ -102,3 +102,20 @@ DATABASE_URL="file:./dev.db"
 - The app is fully self-hosted: SQLite file + local image uploads.
 - For a serverless platform, swap SQLite for Postgres in `prisma/schema.prisma` and move
   `public/uploads` writes to object storage.
+
+## Image uploads on deployed hosts (Cloudinary)
+
+Hosting platforms (Vercel, Render free tier, etc.) have **temporary storage** — images uploaded
+through the admin panel would be lost or fail to save. The app therefore supports
+[Cloudinary](https://cloudinary.com) (free tier) for permanent image storage:
+
+1. Create a free Cloudinary account → Dashboard → **Account details**
+2. Copy **Cloud name**, **API Key**, **API Secret**
+3. Set them as environment variables everywhere the app runs:
+   - Locally: uncomment the `CLOUDINARY_*` lines in `.env`
+   - Hosted: add the same three variables in your host's dashboard (Vercel → Project →
+     Settings → Environment Variables) and redeploy
+
+With the variables set, product & blog cover uploads go to Cloudinary automatically and work
+forever. Without them, uploads still work locally (self-hosted), and pasting image **URLs**
+works everywhere. The 158 seeded product images live in the repo and always work.

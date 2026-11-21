@@ -1,6 +1,6 @@
 import { Suspense } from "react";
 import Link from "next/link";
-import Image from "next/image";
+import SmartImage from "@/components/smart-image";
 import { db } from "@/lib/db";
 import { parseJsonArray } from "@/lib/utils";
 import { deleteProductAction } from "@/app/actions/admin";
@@ -81,7 +81,7 @@ async function ProductsTable({ searchParams }: { searchParams: Promise<{ [key: s
                   <td className="px-4 py-3">
                     <div className="flex items-center gap-3">
                       <div className="relative h-11 w-11 shrink-0 overflow-hidden rounded-lg border border-ink-100 bg-ink-50">
-                        {cover && <Image src={cover} alt="" fill sizes="44px" className="object-contain p-0.5" />}
+                        {cover && <SmartImage src={cover} alt="" fill sizes="44px" className="object-contain p-0.5" />}
                       </div>
                       <div className="min-w-0">
                         <p className="truncate font-bold text-ink-900">{p.name}</p>

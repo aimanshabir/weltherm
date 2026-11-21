@@ -1,5 +1,5 @@
 import Link from "next/link";
-import Image from "next/image";
+import SmartImage from "@/components/smart-image";
 import type { Metadata } from "next";
 import { getPublishedPosts } from "@/lib/queries";
 import { formatDate } from "@/lib/utils";
@@ -47,7 +47,7 @@ export default async function BlogPage() {
               >
                 <div className="relative min-h-64 bg-ink-50">
                   {featured.coverImage && (
-                    <Image
+                    <SmartImage
                       src={featured.coverImage}
                       alt={featured.title}
                       fill
@@ -84,7 +84,7 @@ export default async function BlogPage() {
                   >
                     <div className="relative aspect-[16/9] bg-ink-50">
                       {post.coverImage && (
-                        <Image src={post.coverImage} alt={post.title} fill sizes="33vw" className="object-cover" />
+                        <SmartImage src={post.coverImage} alt={post.title} fill sizes="33vw" className="object-cover" />
                       )}
                     </div>
                     <div className="flex flex-1 flex-col p-6">

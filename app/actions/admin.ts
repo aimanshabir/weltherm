@@ -5,6 +5,7 @@ import { updateTag } from "next/cache";
 import { db } from "@/lib/db";
 import { requireAdmin } from "@/lib/auth";
 import { slugify, excerptFrom } from "@/lib/utils";
+import { uploadToCloudinary, cloudinaryConfigured } from "@/lib/cloudinary";
 import { writeFile, unlink } from "node:fs/promises";
 import path from "node:path";
 import crypto from "node:crypto";
@@ -21,20 +22,61 @@ function bool(fd: FormData, key: string): boolean {
 }
 
 const UPLOAD_DIR = path.join(process.cwd(), "public", "uploads", "products");
+const ALLOWED_EXTS = ["jpg", "jpeg", "png", "webp", "gif", "avif"];
 
-async function saveUploadedImages(files: File[], prefix: string): Promise<string[]> {
-  const saved: string[] = [];
+type UploadOutcome = { urls: string[]; failed: string[] };
+
+function uploadHint(): string {
+  return cloudinaryConfigured()
+    ? "The upload service rejected the file — check size/type and try again."
+    : "Image file uploads need cloud storage on a deployed site — set the CLOUDINARY_* variables (see README). Pasting an image URL always works.";
+}
+
+/**
+ * Store an uploaded image. Prefers Cloudinary (works everywhere, permanent);
+ * falls back to writing to public/uploads locally (self-hosted only).
+ */
+async function storeImage(file: File, folder: string, prefix: string): Promise<string | null> {
+  const buf = Buffer.from(await file.arrayBuffer());
+
+  if (cloudinaryConfigured()) {
+    return uploadToCloudinary(buf, folder);
+  }
+
+  // Local fallback — only reliable when self-hosting.
+  try {
+    const ext = (file.name.split(".").pop() || "jpg").toLowerCase().replace(/[^a-z0-9]/g, "");
+    const safeExt = ext === "jpeg" ? "jpg" : ext;
+    if (!ALLOWED_EXTS.includes(safeExt)) return null;
+    const name = `${slugify(prefix)}-${crypto.randomBytes(4).toString("hex")}.${safeExt}`;
+    await writeFile(path.join(UPLOAD_DIR, name), buf);
+    return `/uploads/products/${name}`;
+  } catch {
+    return null;
+  }
+}
+
+async function saveUploadedImages(files: File[], prefix: string): Promise<UploadOutcome> {
+  const urls: string[] = [];
+  const failed: string[] = [];
+
   for (const file of files) {
     if (!file || file.size === 0) continue;
-    if (file.size > 5 * 1024 * 1024) continue; // 5 MB max
-    const ext = (file.name.split(".").pop() || "jpg").toLowerCase().replace(/[^a-z0-9]/g, "");
-    if (!["jpg", "jpeg", "png", "webp", "gif", "avif"].includes(ext)) continue;
-    const name = `${slugify(prefix)}-${crypto.randomBytes(4).toString("hex")}.${ext === "jpeg" ? "jpg" : ext}`;
-    const buf = Buffer.from(await file.arrayBuffer());
-    await writeFile(path.join(UPLOAD_DIR, name), buf);
-    saved.push(`/uploads/products/${name}`);
+    if (file.size > 5 * 1024 * 1024) {
+      failed.push(`${file.name} (over 5 MB)`);
+      continue;
+    }
+    const ext = (file.name.split(".").pop() || "").toLowerCase().replace(/[^a-z0-9]/g, "");
+    if (!ALLOWED_EXTS.includes(ext === "jpeg" ? "jpg" : ext)) {
+      failed.push(`${file.name} (unsupported type)`);
+      continue;
+    }
+    const url = await storeImage(file, "weltherm/products", prefix);
+    if (url) urls.push(url);
+    else failed.push(file.name);
   }
-  return saved;
+
+  return { urls, failed };
 }
 
 /* ── Products ─────────────────────────────────────────── */
@@ -63,7 +105,11 @@ export async function saveProductAction(_prev: AdminFormState, formData: FormDat
     /* ignore */
   }
   const files = formData.getAll("imageFiles").filter((f): f is File => f instanceof File);
-  images.push(...(await saveUploadedImages(files, slug)));
+  const { urls: uploaded, failed } = await saveUploadedImages(files, slug);
+  if (failed.length > 0) {
+    return { ok: false, message: `Product NOT saved — these image(s) failed: ${failed.join(", ")}. ${uploadHint()}` };
+  }
+  images.push(...uploaded);
   const url = str(formData, "imageUrl");
   if (url && /^https?:\/\/|^\//.test(url)) images.push(url);
 
@@ -183,6 +229,17 @@ export async function savePostAction(_prev: AdminFormState, formData: FormData):
     .map((t) => t.trim())
     .filter(Boolean);
 
+  // Cover image: uploaded file wins over pasted URL
+  let coverImage = str(formData, "coverImage") || null;
+  const coverFile = formData.get("coverFile");
+  if (coverFile instanceof File && coverFile.size > 0) {
+    const { urls, failed } = await saveUploadedImages([coverFile], slug);
+    if (failed.length > 0) {
+      return { ok: false, message: `Post NOT saved — cover image failed: ${failed.join(", ")}. ${uploadHint()}` };
+    }
+    coverImage = urls[0] ?? coverImage;
+  }
+
   const publishNow = status === "PUBLISHED";
 
   try {
@@ -195,7 +252,7 @@ export async function savePostAction(_prev: AdminFormState, formData: FormData):
           slug,
           excerpt: str(formData, "excerpt") || excerptFrom(content),
           content,
-          coverImage: str(formData, "coverImage") || null,
+          coverImage,
           tags: JSON.stringify(tags),
           status,
           publishedAt: publishNow ? (existing?.publishedAt ?? new Date()) : null,
@@ -209,7 +266,7 @@ export async function savePostAction(_prev: AdminFormState, formData: FormData):
           slug,
           excerpt: str(formData, "excerpt") || excerptFrom(content),
           content,
-          coverImage: str(formData, "coverImage") || null,
+          coverImage,
           tags: JSON.stringify(tags),
           status,
           publishedAt: publishNow ? new Date() : null,

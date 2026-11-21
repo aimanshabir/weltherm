@@ -1,6 +1,6 @@
 import Link from "next/link";
-import Image from "next/image";
 import { parseJsonArray } from "@/lib/utils";
+import SmartImage from "@/components/smart-image";
 
 export type ProductCardData = {
   name: string;
@@ -20,7 +20,7 @@ export default function ProductCard({ product }: { product: ProductCardData }) {
       className="group flex flex-col overflow-hidden rounded-2xl border border-ink-100 bg-white transition duration-300 hover:-translate-y-1 hover:border-brand-200 hover:shadow-xl hover:shadow-brand-600/10"
     >
       <div className="relative aspect-square overflow-hidden bg-ink-50 p-6">
-        <Image
+        <SmartImage
           src={cover}
           alt={product.name}
           fill

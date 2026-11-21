@@ -1,5 +1,5 @@
 import Link from "next/link";
-import Image from "next/image";
+import SmartImage from "@/components/smart-image";
 import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { db } from "@/lib/db";
@@ -62,7 +62,7 @@ export default async function BlogPostPage(props: PageProps<"/blog/[slug]">) {
 
       {post.coverImage && (
         <div className="relative mt-8 aspect-[16/8] overflow-hidden rounded-3xl bg-ink-50">
-          <Image src={post.coverImage} alt={post.title} fill priority sizes="(max-width: 768px) 100vw, 768px" className="object-cover" />
+          <SmartImage src={post.coverImage} alt={post.title} fill priority sizes="(max-width: 768px) 100vw, 768px" className="object-cover" />
         </div>
       )}
 

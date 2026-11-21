@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import Image from "next/image";
+import SmartImage from "@/components/smart-image";
 
 export function ProductGallery({ images, name }: { images: string[]; name: string }) {
   const [active, setActive] = useState(0);
@@ -10,7 +10,7 @@ export function ProductGallery({ images, name }: { images: string[]; name: strin
   return (
     <div>
       <div className="relative aspect-square overflow-hidden rounded-3xl border border-ink-100 bg-ink-50 p-8 sm:p-12">
-        <Image
+        <SmartImage
           key={current}
           src={current}
           alt={name}
@@ -34,7 +34,7 @@ export function ProductGallery({ images, name }: { images: string[]; name: strin
                 i === active ? "border-brand-600" : "border-transparent hover:border-ink-200"
               }`}
             >
-              <Image src={img} alt="" fill sizes="10vw" className="object-contain" />
+              <SmartImage src={img} alt="" fill sizes="10vw" className="object-contain" />
             </button>
           ))}
         </div>
